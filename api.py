@@ -3,35 +3,16 @@ import requests
 import json
 import os
 
-def requestVTC(filename):
-    url = "https://vtcc.ai/voice/api/asr/v1/rest/decode_file"
-    headers = {
-        'token': 'anonymous',
-        'sample_rate': '16000',
-        #'format':'S16LE',
-        'num_of_channels':'1',
-        #'asr_model': 'model code'
-        }
-    s = requests.Session()
-    files = {'file': open(filename,'rb')}
-    response = requests.post(url,files=files, headers=headers, verify='wwwvtccai.crt')
 
-    res_json = response.json()
-    if res_json[0]['status'] == 0:
-        transcript = res_json[0]['result']['hypotheses'][0]['transcript_normed']
-        #print('request VTC success')
-        print('VTC transcript:',transcript)
-        return transcript
-    else:
-        return None
 
 def requestFPT(filename):
     url = 'https://api.fpt.ai/hmi/asr/general'
     payload = open(filename, 'rb').read()
-    headers = {'api-key': 'sign in (https://console.fpt.ai/), enable STT api and paste your token here'} #examle: 'api-key': '3ISvE45DVemWTvrMTIgMtyfIjHnd8yAz'
+    headers = {'api-key': 'E7WVMDd26dtKm5Q7tRo1MORnwsUDOzik'} #examle: 'api-key': '3ISvE45DVemWTvrMTIgMtyfIjHnd8yAz'
     response = requests.post(url=url, data=payload, headers=headers)
     res_json = response.json()
-    #print(res_json)
+    print(res_json,"***")
+
     if res_json['status'] == 0:
         transcript = res_json['hypotheses'][0]['utterance']
         #print('request FPT success')
@@ -60,12 +41,10 @@ def requestAndWriteFile(audio_dir_path , transcript_out_dir):
         else:
             label_file = open(name_label_file, 'w', encoding='utf-8')
             res = requestFPT(audio_path)
+            requestFPT(audio_path)
+            
             if res == None:
                 print('request vtc api failed. trying fpt api')
-                res = requestVTC(audio_path)
-                if res == None:
-                    print('all api failed! skip')
-                    exit()
             label_file.write(res)
             print('Transript success, file:{}'.format(name_label_file))
 

@@ -20,17 +20,19 @@ def requestviettel(filename):
     files = {'file': open(filename,'rb')}
     response = requests.post(url,files=files, headers=headers,timeout=None)
     ref_=response.json()
-    print(ref_['status'])
-
     if (len(ref_)==1):
         transcript=ref_[0]['result']['hypotheses'][0]['transcript']
         # print(transcript)    
-    elif(len(ref_)==2) :
+    else:
         transcript=ref_[0]['result']['hypotheses'][0]['transcript']+' '+ref_[0]['result']['hypotheses'][0]['transcript']
         # print(transcript) 
     return transcript
-
-requestviettel('F:\\data\\spkyut-20190730-utt000005431.wav')      
+def viettel(audio_dir):
+    for i in os.listdir(audio_dir):
+        # print(folder+file)
+        a=requestviettel('{}{}'.format(audio_dir,i))  
+        print(a)
+viettel('F:\\data\\')
 def requestFPT(filename):
     url = 'https://api.fpt.ai/hmi/asr/general'
     payload = open(filename, 'rb').read()
@@ -49,7 +51,7 @@ def requestFPT(filename):
         return None
 
 
-def requestAndWriteFile(audio_dir_path , transcript_out_dir,transcript_out_dir1):
+def FPT(audio_dir_path , transcript_out_dir,transcript_out_dir1):
     audio_dir = audio_dir_path + '\\'
     transcript_dir = transcript_out_dir + '\\'
     transcript_dir1 = transcript_out_dir1 + '\\'
@@ -66,18 +68,6 @@ def requestAndWriteFile(audio_dir_path , transcript_out_dir,transcript_out_dir1)
             break
         label_file.write(res)
         print(name_label_file)
-
-    for f in os.listdir(audio_dir):   
-        name_label_file1 = transcript_dir1 + f.split('.')[0]+ '.txt'
-        label_file1 = open(name_label_file1, 'w', encoding='utf-8')
-        audio_path = audio_dir + f
-        print(audio_path)
-        res1 =requestviettel(audio_path)
-        print(res1)
-        if (res1 !=None):
-            break
-        label_file1.write(res1)
-        print(name_label_file1)
      
 
 # requestAndWriteFile('F:\\data\\', 'cuted_transcript','cuted_transcript1')

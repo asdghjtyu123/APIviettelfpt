@@ -1,5 +1,4 @@
-#Transcript audio file use API (Vietnamese)
-#sam 25/09/2019
+
 import requests
 import json
 import os

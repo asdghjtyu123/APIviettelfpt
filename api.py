@@ -11,15 +11,33 @@ def requestFPT(filename):
     headers = {'api-key': 'E7WVMDd26dtKm5Q7tRo1MORnwsUDOzik'} #examle: 'api-key': '3ISvE45DVemWTvrMTIgMtyfIjHnd8yAz'
     response = requests.post(url=url, data=payload, headers=headers)
     res_json = response.json()
-    print(res_json,"***")
+    # print(res_json,"***")
 
     if res_json['status'] == 0:
         transcript = res_json['hypotheses'][0]['utterance']
         #print('request FPT success')
+
         print('FPT transcript:',transcript)
         return transcript
     else:
         return None
+def assemblyAI(filename):
+
+    endpoint = "https://api.assemblyai.com/v2/transcript"
+
+    json = {
+    "audio_url": filename
+    }
+
+    headers = {
+    "Authorization": "33a5dc23d04340a08f585b54282bb760",
+    "Content-Type": "application/json"
+    }
+
+    response = requests.post(endpoint, json=json, headers=headers)
+    res_json = response.json()
+    print(res_json)
+assemblyAI("https://drive.google.com/file/d/1JxC99XbYN_8TsAw91guNekA36LhvjqIJ/view?usp=share_link")
 
 def requestAndWriteFile(audio_dir_path , transcript_out_dir):
 
@@ -41,8 +59,7 @@ def requestAndWriteFile(audio_dir_path , transcript_out_dir):
         else:
             label_file = open(name_label_file, 'w', encoding='utf-8')
             res = requestFPT(audio_path)
-            requestFPT(audio_path)
-            
+            requestFPT(audio_path)     
             if res == None:
                 print('request vtc api failed. trying fpt api')
             label_file.write(res)
@@ -50,4 +67,4 @@ def requestAndWriteFile(audio_dir_path , transcript_out_dir):
 
         #break
 
-requestAndWriteFile('F:\\data\\', 'cuted_transcript')
+# requestAndWriteFile('F:\\data\\', 'cuted_transcript')

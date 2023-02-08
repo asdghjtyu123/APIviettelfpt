@@ -3,6 +3,78 @@ import requests
 import json
 import os
 
+import time
+import os
+import json
+import requests # pip install requests
+import pandas as pd # pip install pandas
+
+
+
+
+class AssemblyAI:
+    BASE_URL = 'https://api.assemblyai.com/v2/'
+    
+    def __init__(self, api_key):
+        self.api_key = api_key
+
+    def headers(self):
+        return {'authorization': self.api_key}
+
+    def upload_audio_by_url(self, url_link, remove_filler_word=True, format_text=True, **kwarg):
+        request_body = {
+            'audio_url': url_link,
+            'disfluencies': remove_filler_word,
+            'format_text': format_text
+        }
+
+        for key, val in kwarg.items():
+            request_body[key] = val
+
+        response = requests.post(self.BASE_URL + 'transcript', headers=self.headers, json=request_body)
+        return response
+
+    def upload_audio_by_file(self, audio_file_path, chunk_size=5241880, remove_filler_word=True, format_text=True, **kwarg):
+        if not os.path.exists(audio_file_path) or not os.path.isfile(audio_file_path):
+            print('File is not found')
+            return
+        
+        def read_file(file_path):
+            with open(file_path, mode='rb') as _file:
+                while True:
+                    data = _file.read()
+                    if not data:
+                        break
+                    yield data
+        
+        audio_data = read_file(audio_file_path)
+        headers = self.headers
+        headers['content-type'] = 'application/json'
+        upload_response = requests.post(self.BASE_URL + 'upload', headers=headers, data=audio_data)
+        
+        response = self.upload_audio_by_url(upload_response.json()['upload_url'], remove_filler_word=remove_filler_word, format_text=format_text, **kwarg)
+        return response
+
+    def retrieve_transcript(self, transcript_id):
+        response = requests.get(self.BASE_URL + 'transcript/' + transcript_id, headers=self.headers)
+        return response.json()
+
+
+# API_KEY = 'E7WVMDd26dtKm5Q7tRo1MORnwsUDOzik'
+
+# ai1 = AssemblyAI(API_KEY)
+
+
+# media_file_path ='https://drive.google.com/file/d/1JxC99XbYN_8TsAw91guNekA36LhvjqIJ/view?usp=share_link'
+# response_upload = ai1.upload_audio_by_file(media_file_path)
+# print(response_upload)
+# response_json_output = response_upload.json()
+# transcript_id = response_json_output['id']
+
+# response_status = ai1.retrieve_transcript(transcript_id)
+# print(response_status)
+# print(response_status['status'])
+# print(response_status['text'])
 
 
 def requestFPT(filename):
@@ -36,7 +108,7 @@ def assemblyAI(filename):
 
     response = requests.post(endpoint, json=json, headers=headers)
     res_json = response.json()
-    print(res_json)
+    print(res_json['status'])
 assemblyAI("https://drive.google.com/file/d/1JxC99XbYN_8TsAw91guNekA36LhvjqIJ/view?usp=share_link")
 
 def requestAndWriteFile(audio_dir_path , transcript_out_dir):
